@@ -72,13 +72,35 @@ def make_line(directions):
         line.append(previous)
     return line
 
+def changing_index(a, b):
+    if a[0] == b[0]:
+        assert a[1] != b[1]
+        return 1
+    if a[1] == b[1]:
+        return 0
+    raise AssertionError()
+
+def intersections(line_a, line_b):
+    '''
+    Finds the intersection points of the two lines
+    '''
+    # Do this by walking along the first line, and for each span working out if
+    # there is anywhere on the second line which has the same axis value
+    intersections = list()
+    for i in range(0, len(line_a)-1):
+        print line_a[i], line_a[i+1], changing_index(line_a[i], line_a[i+1])
+    return intersections
+
 def test(result, expected):
     assert len(result) == len(expected)
     for i, a in enumerate(result):
         assert a == expected[i]
     print("Pass")
 
-test(make_line(["R5", "U17", "L3"]), [(0,0), (5,0), (5,17), (2,17)])
+def main():
+    test(make_line(["R5", "U17", "L3"]), [(0,0), (5,0), (5,17), (2,17)])
+    line_1 = make_line(["R8","U5","L5","D3"])
+    line_2 = make_line(["U7","R6","D4","L4"])
+    test(intersections(line_1, line_2), [(3,3), (5,5)])
 
-with open("Input/3.txt") as in_file:
-    pass
+main()
