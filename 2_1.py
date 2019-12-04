@@ -91,20 +91,26 @@ def run_program(opcodes, opcode_index=0):
     elif current_instruction == 2:
         operation = operator.mul
     elif current_instruction == 99:
-        print(opcodes)
-        return
+        return opcodes
     left_index = opcodes[opcode_index + 1]
     right_index = opcodes[opcode_index + 2]
     result_index = opcodes[opcode_index + 3]
     opcodes[result_index] = operation(opcodes[left_index], opcodes[right_index])
-    run_program(opcodes, opcode_index + 4)
+    return run_program(opcodes, opcode_index + 4)
 
-run_program([1, 0, 0, 0, 99])
-run_program([2, 3, 0, 3, 99])
-run_program([2,4,4,5,99,0])
-run_program([1,1,1,4,99,5,6,0,99])
+def test(result, expected):
+    assert len(result) == len(expected)
+    for i, a in enumerate(result):
+        assert a == expected[i]
+    print("Pass")
+
+test(run_program([1, 0, 0, 0, 99]), [2,0,0,0,99])
+test(run_program([2, 3, 0, 3, 99]), [2,3,0,6,99])
+test(run_program([2,4,4,5,99,0]), [2,4,4,5,99,9801])
+test(run_program([1,1,1,4,99,5,6,0,99]), [30,1,1,4,2,5,6,0,99])
+
 with open("Input/2.txt") as in_file:
     line = in_file.readline()
     input_opcode = line.split(",")
     input_opcode = [int(opcode) for opcode in input_opcode]
-run_program(input_opcode)
+print(run_program(input_opcode))
