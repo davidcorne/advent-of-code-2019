@@ -49,6 +49,36 @@
 # U62,R66,U55,R34,D71,R55,D58,R83 = distance 159
 # R98,U47,R26,D63,R33,U87,L62,D20,R33,U53,R51
 # U98,R91,D20,R16,D67,R40,U7,R15,U6,R7 = distance 135
- 
+
+def make_line(directions):
+    '''
+    Pass in a list of directions as an iterable, and get back a list of points which make up the line.
+    e.g. [R5, U7, L3] -> [(0,0), (0,5), (7,5), (7,2)]
+    '''
+    line = [(0,0)]
+    previous = (0, 0)
+    for d in directions:
+        number = int(d[1:])
+        if d[0] == "R":
+            previous = (previous[0] + number, previous[1])
+        elif d[0] == "L":
+            previous = (previous[0] - number, previous[1])
+        elif d[0] == "U":
+            previous = (previous[0], previous[1] + number)
+        elif d[0] == "D":
+            previous = (previous[0], previous[1] - number)
+        else:
+            raise RuntimeError("Unexpected direction " + d[0])
+        line.append(previous)
+    return line
+
+def test(result, expected):
+    assert len(result) == len(expected)
+    for i, a in enumerate(result):
+        assert a == expected[i]
+    print("Pass")
+
+test(make_line(["R5", "U17", "L3"]), [(0,0), (5,0), (5,17), (2,17)])
+
 with open("Input/3.txt") as in_file:
     pass
