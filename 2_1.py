@@ -103,3 +103,8 @@ run_program([1, 0, 0, 0, 99])
 run_program([2, 3, 0, 3, 99])
 run_program([2,4,4,5,99,0])
 run_program([1,1,1,4,99,5,6,0,99])
+with open("Input/2.txt") as in_file:
+    line = in_file.readline()
+    input_opcode = line.split(",")
+    input_opcode = [int(opcode) for opcode in input_opcode]
+run_program(input_opcode)
