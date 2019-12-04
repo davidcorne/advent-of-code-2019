@@ -92,6 +92,8 @@ def run_program(opcodes, opcode_index=0):
         operation = operator.mul
     elif current_instruction == 99:
         return opcodes
+    else:
+        raise RuntimeError("Unknown opcode")
     left_index = opcodes[opcode_index + 1]
     right_index = opcodes[opcode_index + 2]
     result_index = opcodes[opcode_index + 3]
