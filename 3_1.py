@@ -80,6 +80,10 @@ def changing_index(a, b):
         return 0
     raise AssertionError()
 
+def not_index(index):
+    assert index == 0 or index == 1
+    return 0 if index == 0 else 1
+
 def intersections(line_a, line_b):
     '''
     Finds the intersection points of the two lines
@@ -87,20 +91,46 @@ def intersections(line_a, line_b):
     # Do this by walking along the first line, and for each span working out if
     # there is anywhere on the second line which has the same axis value
     intersections = list()
-    for i in range(0, len(line_a)-1):
-        print line_a[i], line_a[i+1], changing_index(line_a[i], line_a[i+1])
+    for i in range(0, len(line_a) - 1):
+        c_a = changing_index(line_a[i], line_a[i+1])
+        for j in range(0, len(line_b) - 1):
+            c_b = changing_index(line_b[j], line_b[j + 1])
+            # We only care if they're going in opposite directions
+            if (c_a != c_b):
+                # get and sort the changing direction e.g. [5,9], [5,6] -> [6,9]
+                changing_b = [line_b[j][c_b], line_b[j+1][c_b]]
+                changing_b.sort()
+                # Now see if the static value from line_a is inside changing_b
+                static_a = line_a[i][c_b]
+                if (changing_b[0] <= static_a and static_a <= changing_b[1]):
+                    # Now check the lines cross in the other direction
+                    changing_a = [line_a[i][c_a], line_a[i+1][c_a]]
+                    changing_a.sort()
+                    # Now see if the static value from line_b is inside changing_a
+                    static_b = line_b[j][c_a]
+                    # Remove (0, 0)
+                    if (static_a == static_b == 0):
+                        continue
+                    if (changing_a[0] <= static_b and static_b <= changing_a[1]):
+                        # These lines cross!
+                        intersection = [0, 0]
+                        intersection[c_b] = line_a[i][c_b]
+                        intersection[c_a] = line_b[i][c_a]
+                        intersections.append(intersection)
     return intersections
 
 def test(result, expected):
     assert len(result) == len(expected)
     for i, a in enumerate(result):
-        assert a == expected[i]
+        if (a != expected[i]):
+            print "Got \"", a, "\" Expected \"", expected[i], "\""
+            raise RuntimeError("Test Failure")
     print("Pass")
 
 def main():
     test(make_line(["R5", "U17", "L3"]), [(0,0), (5,0), (5,17), (2,17)])
     line_1 = make_line(["R8","U5","L5","D3"])
     line_2 = make_line(["U7","R6","D4","L4"])
-    test(intersections(line_1, line_2), [(3,3), (5,5)])
+    test(intersections(line_1, line_2), [[6,5], [3,3]])
 
 main()
