@@ -53,23 +53,34 @@
 def make_line(directions):
     '''
     Pass in a list of directions as an iterable, and get back a list of points which make up the line.
-    e.g. [R5, U7, L3] -> [(0,0), (0,5), (7,5), (7,2)]
+    e.g. [R5, U2, L3] -> [(0,0), (0,1), (0,2), (0,3), (0,4), (0,5), (2,5), (7,2)]
     '''
-    line = [(0,0)]
+    line = {(0,0)}
     previous = (0, 0)
     for d in directions:
         number = int(d[1:])
         if d[0] == "R":
-            previous = (previous[0] + number, previous[1])
+            sign = 1
+            index = 0
         elif d[0] == "L":
-            previous = (previous[0] - number, previous[1])
+            sign = -1
+            index = 0
         elif d[0] == "U":
-            previous = (previous[0], previous[1] + number)
+            sign = 1
+            index = 1
         elif d[0] == "D":
-            previous = (previous[0], previous[1] - number)
+            sign = -1
+            index = 1
         else:
             raise RuntimeError("Unexpected direction " + d[0])
-        line.append(previous)
+        end = previous[index] + (sign * number)
+        while (True):
+            previous_list = list(previous)
+            previous_list[index] += sign
+            previous = tuple(previous_list)
+            line.add(previous)
+            if previous[index] == end:
+                break
     return line
 
 def changing_index(a, b):
@@ -84,40 +95,9 @@ def not_index(index):
     assert index == 0 or index == 1
     return 0 if index == 0 else 1
 
-def intersections(line_a, line_b):
-    '''
-    Finds the intersection points of the two lines
-    '''
-    # Do this by walking along the first line, and for each span working out if
-    # there is anywhere on the second line which has the same axis value
-    intersections = list()
-    for i in range(0, len(line_a) - 1):
-        c_a = changing_index(line_a[i], line_a[i+1])
-        for j in range(0, len(line_b) - 1):
-            c_b = changing_index(line_b[j], line_b[j + 1])
-            # We only care if they're going in opposite directions
-            if (c_a != c_b):
-                # get and sort the changing direction e.g. [5,9], [5,6] -> [6,9]
-                changing_b = [line_b[j][c_b], line_b[j+1][c_b]]
-                changing_b.sort()
-                # Now see if the static value from line_a is inside changing_b
-                static_a = line_a[i][c_b]
-                if (changing_b[0] <= static_a and static_a <= changing_b[1]):
-                    # Now check the lines cross in the other direction
-                    changing_a = [line_a[i][c_a], line_a[i+1][c_a]]
-                    changing_a.sort()
-                    # Now see if the static value from line_b is inside changing_a
-                    static_b = line_b[j][c_a]
-                    # Remove (0, 0)
-                    if (static_a == static_b == 0):
-                        continue
-                    if (changing_a[0] <= static_b and static_b <= changing_a[1]):
-                        # These lines cross!
-                        intersection = [0, 0]
-                        intersection[c_b] = line_a[i][c_b]
-                        intersection[c_a] = line_b[i][c_a]
-                        intersections.append(intersection)
-    return intersections
+def find_intersections(line_1, line_2):
+    # set intersection minus (0, 0)
+    return (line_1 & line_2) - {(0, 0)}
 
 def find_nearest(intersections):
     distances = [abs(i[0]) + abs(i[1]) for i in intersections]
@@ -134,11 +114,11 @@ def test(result, expected):
     print("Pass")
 
 def main_test():
-    test(make_line(["R5", "U17", "L3"]), [(0,0), (5,0), (5,17), (2,17)])
-    line_1 = make_line(["R8","U5","L5","D3"])
+    #test(make_line(["R5", "U17", "L3"]), [(0,0), (5,0), (5,17), (2,17)])
+    line_1 = make_line(["R8", "U5","L5","D3"])
     line_2 = make_line(["U7","R6","D4","L4"])
-    crossings = intersections(line_1, line_2)
-    test(crossings, [[6,5], [3,3]])
+    crossings = find_intersections(line_1, line_2)
+    assert crossings == {(6,5), (3,3)}
     nearest = find_nearest(crossings)
     assert nearest == 6
 
@@ -147,9 +127,9 @@ def main():
     str_2 = "L1004,D252,L909,D935,R918,D981,L251,U486,R266,U613,L546,D815,L789,D692,L550,U633,R485,U955,R693,D784,R974,U529,R926,U550,L742,U88,R647,D572,R832,D345,R98,D122,R634,U943,L956,U551,R295,U122,L575,U378,R652,U97,R129,D872,R275,D492,L530,D328,R761,U738,R836,U884,R636,U776,L951,D977,R980,U526,L824,U125,R778,D818,R281,U929,R907,U234,L359,D521,R294,U137,L607,U421,L7,U582,R194,U979,L941,D999,R442,D330,L656,U410,R753,U704,R834,D61,R775,U750,R891,D989,R856,D944,R526,D44,R227,U938,R130,D280,L721,D171,R763,D677,L643,U931,L489,U250,L779,U552,R796,U220,R465,U700,L459,U766,R501,D16,R555,U257,R122,U452,L197,U905,L486,D726,L551,U487,R785,U470,L879,U149,L978,D708,R18,U211,L652,D141,L99,D190,L982,U556,R861,U745,L786,U674,R706,U986,R554,D39,R881,D626,R885,U907,R196,U532,L297,U232,L508,U283,L236,U613,L551,U647,R679,U760,L435,D475,R916,U669,R788,U922,R107,D503,R687,D282,L940,U835,L226,U421,L64,U245,R977,D958,L866,D328,R215,D532,R350,D199,R872,U373,R415,U463,L132,U225,L144,U786,R658,D535,R263,U263,R48,D420,L407,D177,L496,U521,R47,D356,L503,D557,R220,D879,L12,U853,R265,U983,L221,U235,R46,D906,L271,U448,L464,U258,R952,D976,L949,D526,L458,D753,L408,U222,R256,U885,R986,U622,R503,D5,L659,D553,R311,U783,L541,U17,R267,U767,L423,D501,R357,D160,L316,D912,R303,U648,L182,U342,L185,U743,L559,U816,R24,D203,R608,D370,R25,U883,L72,D816,L877,U990,R49,U331,L482,U37,L585,D327,R268,D106,L224,U401,L203,D734,L695,U910,L417,U105,R135,U876,L194,U723,L282,D966,R246,U447,R966,U346,L636,D9,L480,D35,R96"
     line_1 = make_line(str_1.split(","))
     line_2 = make_line(str_2.split(","))
-    crossings = intersections(line_1, line_2)
+    crossings = find_intersections(line_1, line_2)
     print crossings
     print find_nearest(crossings)
 
-main_test()
+#main_test()
 main()
