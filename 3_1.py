@@ -50,6 +50,8 @@
 # R98,U47,R26,D63,R33,U87,L62,D20,R33,U53,R51
 # U98,R91,D20,R16,D67,R40,U7,R15,U6,R7 = distance 135
 
+gl_intersection={(-1913, -274), (-1004, -148), (1003, -28), (446, 0), (-1767, -252), (-1913, -351), (-1106, -252), (-367, -693), (-1403, -252), (-1913, -505), (662, -28), (-367, -605), (-1423, -252), (-1139, -1069), (-1526, -1078), (-2380, -1521), (-2316, -988), (-1913, -670), (662, 350)}
+distances = dict()
 def make_line(directions):
     '''
     Pass in a list of directions as an iterable, and get back a list of points which make up the line.
@@ -57,6 +59,7 @@ def make_line(directions):
     '''
     line = {(0,0)}
     previous = (0, 0)
+    total = 0
     for d in directions:
         number = int(d[1:])
         if d[0] == "R":
@@ -78,6 +81,11 @@ def make_line(directions):
             previous_list = list(previous)
             previous_list[index] += sign
             previous = tuple(previous_list)
+            total += 1
+            if (previous in gl_intersection):
+                distances.setdefault(previous, 0)
+                distances[previous] += total
+                print previous, total
             line.add(previous)
             if previous[index] == end:
                 break
@@ -128,8 +136,9 @@ def main():
     line_1 = make_line(str_1.split(","))
     line_2 = make_line(str_2.split(","))
     crossings = find_intersections(line_1, line_2)
-    print crossings
-    print find_nearest(crossings)
+    val = distances.values()
+    val.sort()
+    print val
 
 #main_test()
 main()
