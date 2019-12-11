@@ -46,29 +46,17 @@ def valid_password(number):
     Is this a valid password by the above rules
     '''
     split = [int(i) for i in str(number)]
-    previous = split[0]
-    double = False
-    double_mode = False
-    equal_count = 1
-    run_length = 1
-    for i in range(1, len(split)):
-        digit = split[i]
-        if previous == digit:
-            if double_mode:
-                # More than 2 of these, can't count them
-                double = False
+    sort_split = split[:]
+    sort_split.sort()
+    if split == sort_split:
+        digits = dict()
+        for digit in sort_split:
+            if digit in digits:
+                digits[digit] += 1
             else:
-                double = True
-                double_mode = True
-        elif previous > digit:
-            # Digits must not decrease
-            return False
-        else:
-            # A break in the equal digits
-            double_mode = False
-        previous = digit
-
-    return double
+                digits[digit] = 1
+        return 2 in digits.values()
+    return False
 
 assert valid_password(111122)
 assert not valid_password(123444)
