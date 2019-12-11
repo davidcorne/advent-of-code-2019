@@ -190,5 +190,14 @@ def part_1():
     input_opcode = get_opcodes("Input/2.txt")
     assert run_program(input_opcode, 12, 2) == 3760627
 
+def part_2():
+    input_opcode = get_opcodes("Input/2.txt")
+    for noun in range(100):
+        for verb in range(100):
+            output = run_program(input_opcode, noun, verb)
+            if output == 19690720:
+                print noun, verb, (100 * noun) + verb
+
 do_test()
 part_1()
+part_2()
