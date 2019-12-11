@@ -17,6 +17,21 @@
 # your puzzle input meet these criteria?
 #
 # Your puzzle input is 307237-769058.
+#
+# --- Part Two --- 
+# 
+# An Elf just remembered one more important detail: the two
+# adjacent matching digits are not part of a larger group of matching digits.
+#
+# Given this additional criterion, but still ignoring the range rule, the
+# following are now true:
+#
+# 112233 meets these criteria because the digits never decrease and all repeated
+# digits are exactly two digits long. 123444 no longer meets the criteria (the
+# repeated 44 is part of a larger group of 444). 111122 meets the criteria (even
+# though 1 is repeated more than twice, it still contains a double 22). How many
+# different passwords within the range given in your puzzle input meet all of
+# the criteria?
 
 def try_range(start, end):
     assert end > start
@@ -33,19 +48,35 @@ def valid_password(number):
     split = [int(i) for i in str(number)]
     previous = split[0]
     double = False
+    double_mode = True
+    equal_count = 1
+    run_length = 1
     for i in range(1, len(split)):
         digit = split[i]
-        if (previous == digit):
+        if previous == digit:
             double = True
-        if previous > digit:
+            double_mode = True
+            equal_count += 1
+        elif previous > digit:
             # Digits must decrease
             return False
+        else:
+            if double_mode:
+                double_mode = False
+                # A non-even number of the same digit in a row is not allowed
+                if equal_count % 2 != 0:
+                    return False
+                equal_count = 1
         previous = digit
 
     return double
 
-assert valid_password(111111)
-assert not valid_password(223450)
+assert valid_password(111122)
+assert not valid_password(123444)
+assert valid_password(112233)
+assert not valid_password(333346)
+
 
 valid = try_range(307237, 769058)
+print valid
 print len(valid)
