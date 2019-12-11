@@ -83,22 +83,41 @@
 
 import operator
 
-def run_program(opcodes, opcode_index=0):
-    current_instruction = opcodes[opcode_index]
-    operation = None
-    if current_instruction == 1:
-        operation = operator.add
-    elif current_instruction == 2:
-        operation = operator.mul
-    elif current_instruction == 99:
-        return opcodes
-    else:
-        raise RuntimeError("Unknown opcode")
-    left_index = opcodes[opcode_index + 1]
-    right_index = opcodes[opcode_index + 2]
-    result_index = opcodes[opcode_index + 3]
-    opcodes[result_index] = operation(opcodes[left_index], opcodes[right_index])
-    return run_program(opcodes, opcode_index + 4)
+class Program:
+    
+    def __init__(self, opcodes):
+        self.opcodes = opcodes
+        self.opcode_table = {
+             1: self.add,
+             2: self.multiply,
+             99: self.halt
+        }
+
+    def run(self):
+        self.run_recursive(0)
+
+    def run_recursive(self, index):
+        op = self.opcodes[index]
+        self.opcode_table[op](index)
+
+    def add(self, index):
+        assert self.opcodes[index] == 1
+        self.opcodes[self.opcodes[index + 3]] = self.opcodes[self.opcodes[index + 1]] + self.opcodes[self.opcodes[index + 2]]
+        self.run_recursive(index + 4)
+
+    def multiply(self, index):
+        assert self.opcodes[index] == 2
+        self.opcodes[self.opcodes[index + 3]] = self.opcodes[self.opcodes[index + 1]] * self.opcodes[self.opcodes[index + 2]]
+        self.run_recursive(index + 4)
+
+    def halt(self, index):
+        assert self.opcodes[index] == 99
+
+def run_program(opcodes):
+    program = Program(opcodes)
+    # opcodes will be modified in place.
+    program.run()
+    return opcodes
 
 def test(result, expected):
     assert len(result) == len(expected)
