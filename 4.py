@@ -48,25 +48,24 @@ def valid_password(number):
     split = [int(i) for i in str(number)]
     previous = split[0]
     double = False
-    double_mode = True
+    double_mode = False
     equal_count = 1
     run_length = 1
     for i in range(1, len(split)):
         digit = split[i]
         if previous == digit:
-            double = True
-            double_mode = True
-            equal_count += 1
+            if double_mode:
+                # More than 2 of these, can't count them
+                double = False
+            else:
+                double = True
+                double_mode = True
         elif previous > digit:
-            # Digits must decrease
+            # Digits must not decrease
             return False
         else:
-            if double_mode:
-                double_mode = False
-                # A non-even number of the same digit in a row is not allowed
-                if equal_count % 2 != 0:
-                    return False
-                equal_count = 1
+            # A break in the equal digits
+            double_mode = False
         previous = digit
 
     return double
@@ -75,8 +74,9 @@ assert valid_password(111122)
 assert not valid_password(123444)
 assert valid_password(112233)
 assert not valid_password(333346)
+assert valid_password(388999)
 
 
 valid = try_range(307237, 769058)
-print valid
-print len(valid)
+print(valid)
+print(len(valid))
