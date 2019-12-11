@@ -139,30 +139,33 @@ class Program:
         }
 
     def run(self):
-        self.run_recursive(0)
+        return self.run_recursive(0)
 
     def run_recursive(self, index):
         op = self.opcodes[index]
-        self.opcode_table[op](index)
+        return self.opcode_table[op](index)
 
     def add(self, index):
         assert self.opcodes[index] == 1
         self.opcodes[self.opcodes[index + 3]] = self.opcodes[self.opcodes[index + 1]] + self.opcodes[self.opcodes[index + 2]]
-        self.run_recursive(index + 4)
+        return self.run_recursive(index + 4)
 
     def multiply(self, index):
         assert self.opcodes[index] == 2
         self.opcodes[self.opcodes[index + 3]] = self.opcodes[self.opcodes[index + 1]] * self.opcodes[self.opcodes[index + 2]]
-        self.run_recursive(index + 4)
+        return self.run_recursive(index + 4)
 
     def halt(self, index):
         assert self.opcodes[index] == 99
+        return self.opcodes[0]
 
-def run_program(opcodes):
-    program = Program(opcodes)
+def run_program(opcodes, noun, verb):
+    modified_opcodes = opcodes[:]
+    modified_opcodes[1] = noun
+    modified_opcodes[2] = verb
+    program = Program(modified_opcodes)
     # opcodes will be modified in place.
-    program.run()
-    return opcodes
+    return program.run()
 
 def test(result, expected):
     assert len(result) == len(expected)
@@ -177,13 +180,15 @@ def get_opcodes(path):
         input_opcode = [int(opcode) for opcode in input_opcode]
     return input_opcode
 
-test(run_program([1, 0, 0, 0, 99]), [2,0,0,0,99])
-test(run_program([2, 3, 0, 3, 99]), [2,3,0,6,99])
-test(run_program([2,4,4,5,99,0]), [2,4,4,5,99,9801])
-test(run_program([1,1,1,4,99,5,6,0,99]), [30,1,1,4,2,5,6,0,99])
+def do_test():
+    assert run_program([1, 0, 0, 0, 99], 0, 0) ==  2
+    assert run_program([2, 3, 0, 3, 99], 3, 0) ==  2
+    assert run_program([2,4,4,5,99,0], 4, 4) ==  2
+    assert run_program([1,1,1,4,99,5,6,0,99], 1, 1) == 30
 
 def part_1():
     input_opcode = get_opcodes("Input/2.txt")
-    assert run_program(input_opcode) == 3760627
+    assert run_program(input_opcode, 12, 2) == 3760627
 
+do_test()
 part_1()
