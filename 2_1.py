@@ -128,8 +128,6 @@
 # 19690720. What is 100 * noun + verb? (For example, if noun=12 and verb=2, the
 # answer would be 1202.)
 
-import operator
-
 class Program:
     
     def __init__(self, opcodes):
