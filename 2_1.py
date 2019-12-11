@@ -170,13 +170,20 @@ def test(result, expected):
         assert a == expected[i]
     print("Pass")
 
+def get_opcodes(path):
+    with open(path) as in_file:
+        line = in_file.readline()
+        input_opcode = line.split(",")
+        input_opcode = [int(opcode) for opcode in input_opcode]
+    return input_opcode
+
 test(run_program([1, 0, 0, 0, 99]), [2,0,0,0,99])
 test(run_program([2, 3, 0, 3, 99]), [2,3,0,6,99])
 test(run_program([2,4,4,5,99,0]), [2,4,4,5,99,9801])
 test(run_program([1,1,1,4,99,5,6,0,99]), [30,1,1,4,2,5,6,0,99])
 
-with open("Input/2.txt") as in_file:
-    line = in_file.readline()
-    input_opcode = line.split(",")
-    input_opcode = [int(opcode) for opcode in input_opcode]
-print(run_program(input_opcode))
+def part_1():
+    input_opcode = get_opcodes("Input/2.txt")
+    assert run_program(input_opcode) == 3760627
+
+part_1()
